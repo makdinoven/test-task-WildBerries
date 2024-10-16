@@ -21,7 +21,7 @@ def get_product_data_from_wildberries(nm_id):
                 review_rating = product_data["reviewRating"]
                 feedbacks = product_data["feedbacks"]
                 basic_price = product_data["sizes"][0]["price"]["basic"] / 100
-                current_price = product_data["sizes"][0]["price"]["product"] / 100
+                current_price = product_data["sizes"][0]["price"]["total"] / 100
                 discount_amount = basic_price - current_price
                 discount_percentage = (discount_amount / basic_price) * 100
                 total_quantity = product_data["totalQuantity"]

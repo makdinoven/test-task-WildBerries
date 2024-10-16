@@ -1,4 +1,5 @@
 from celery import shared_task
+from django.utils import timezone
 from .models import Product
 from .services import get_product_data_from_wildberries
 import logging
@@ -28,7 +29,8 @@ def fetch_product_data(nm_id):
                 'current_price': data['current_price'],
                 'discount_percentage': data['discount_percentage'],
                 'discount_amount': data['discount_amount'],
-                'total_quantity': data['total_quantity']
+                'total_quantity': data['total_quantity'],
+                'created_at': timezone.now()  # Явно указываем время создания для новых записей
             }
         )
 
