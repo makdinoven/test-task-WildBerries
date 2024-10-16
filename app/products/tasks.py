@@ -1,10 +1,8 @@
 from celery import shared_task
 from .models import Product
-from .services import get_product_data_from_wildberries, get_product_price_from_wildberries
+from .services import get_product_data_from_wildberries
 import logging
-import asyncio
 
-# Настраиваем логирование
 logger = logging.getLogger(__name__)
 
 
@@ -12,34 +10,27 @@ logger = logging.getLogger(__name__)
 def fetch_product_data(nm_id):
     logger.info(f"Starting task for product {nm_id}")
 
-    # Получаем основную информацию о товаре с использованием asyncio.run()
-    data = asyncio.run(get_product_data_from_wildberries(nm_id))
+    # Получаем данные о товаре
+    data = get_product_data_from_wildberries(nm_id)
     if data:
         logger.info(f"Product data received for {nm_id}: {data}")
-    else:
-        logger.error(f"Failed to fetch product data for {nm_id}")
 
-    # Получаем информацию о самой последней цене товара с использованием asyncio.run()
-    latest_price = asyncio.run(get_product_price_from_wildberries(nm_id))
-    if latest_price is not None:
-        logger.info(f"Latest price for product {nm_id}: {latest_price}")
-    else:
-        logger.error(f"Failed to fetch latest price for product {nm_id}")
-
-    if data and latest_price is not None:
-        # Извлекаем нужные данные из основного ответа
-        product_data = {
-            'nm_id': nm_id,
-            'imt_name': data.get('imt_name', 'Без названия'),
-            'description': data.get('description', 'Описание отсутствует'),
-            'categories': data.get('subj_root_name', 'Категория отсутсвует'),
-            'sub_categories': data.get('subj_name', 'Дочерняя категория отсутсвует'),
-            'price': latest_price / 100
-        }
-
-        logger.info(f"Saving product data for {nm_id}: {product_data}")
-        # Обновляем или создаем товар в базе данных
-        product, created = Product.objects.update_or_create(nm_id=nm_id, defaults=product_data)
+        # Обновляем или создаем запись о товаре в базе данных
+        product, created = Product.objects.update_or_create(
+            nm_id=nm_id,
+            defaults={
+                'brand': data['brand'],
+                'name': data['name'],
+                'entity': data['entity'],
+                'review_rating': data['review_rating'],
+                'feedbacks': data['feedbacks'],
+                'basic_price': data['basic_price'],
+                'current_price': data['current_price'],
+                'discount_percentage': data['discount_percentage'],
+                'discount_amount': data['discount_amount'],
+                'total_quantity': data['total_quantity']
+            }
+        )
 
         if created:
             logger.info(f"New product created: {product}")
