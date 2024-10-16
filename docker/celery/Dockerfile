@@ -14,4 +14,4 @@ RUN pip install --upgrade pip && pip install -r /app/requirements.txt
 COPY ./app /app
 
 # Запускаем Celery worker
-CMD ["celery", "-A", "app", "worker", "--loglevel=info"]
+CMD ["celery", "-A", "wildberries", "worker", "--loglevel=info"]

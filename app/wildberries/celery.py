@@ -2,13 +2,14 @@ from __future__ import absolute_import
 import os
 from celery import Celery
 
-# Устанавливаем переменные окружения для Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+# Устанавливаем переменную окружения для настроек Django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'wildberries.settings')
 
-app = Celery('config')
+# Создаем приложение Celery
+app = Celery('wildberries')
 
-# Используем настройки Django для конфигурации Celery
+# Загружаем настройки из файла настроек Django
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
-# Автоматически обнаруживаем задачи (tasks.py в приложениях)
+# Автоматически находим задачи в приложениях Django
 app.autodiscover_tasks()
